@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.pcms.project.mapper.PvStationsMapper">
+
+    <resultMap id="BaseResultMap1" type="org.jeecg.modules.pcms.project.stationentity.PvStations">
+        <result column="id" property="id"/>
+        <result column="plant_id" property="plantId"/>
+        <result column="name" property="name"/>
+        <result column="user_id" property="userId"/>
+        <result column="country" property="country"/>
+        <result column="longitude" property="longitude"/>
+        <result column="latitude" property="latitude"/>
+        <result column="peak_power" property="peakPower"/>
+        <result column="create_date" property="createDate"/>
+        <result column="installer" property="installer"/>
+        <result column="current_power" property="currentPower"/>
+        <result column="total_energy" property="totalEnergy"/>
+        <result column="latitude_d" property="latitudeD"/>
+        <result column="latitude_f" property="latitudeF"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="status" property="status"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="pageList" parameterType="org.jeecg.modules.pcms.project.vo.PageVo" resultMap="BaseResultMap1">
+        SELECT
+            pv.*,
+            CASE
+                WHEN
+                    MAX(CONVERT(pd.status, SIGNED)) = 1
+                THEN 1
+                ELSE 0
+            END AS ss
+        FROM pv_stations pv LEFT JOIN pv_datalogger pd ON pd.plant_id = pv.plant_id
+        <if test="pageVo.plantName != null and !pageVo.plantName.trim().isEmpty"> WHERE pv.name LIKE CONCAT("%", #{pageVo.plantName}, "%") </if>
+        GROUP BY pv.id
+        <if test="pageVo.searchType != null">HAVING ss = #{pageVo.searchType}</if>
+    </select>
+
+
+    <select id="selectStationCount" parameterType="java.lang.String" resultMap="BaseResultMap1">
+        SELECT
+        pv.*,
+        CASE
+        WHEN
+        MAX(CONVERT(pd.status, SIGNED)) = 1
+        THEN 1
+        ELSE 0
+        END AS ss
+        FROM pv_stations pv LEFT JOIN pv_datalogger pd ON pd.plant_id = pv.plant_id
+<!--        <if test="pageVo.plantName != null and !pageVo.plantName.trim().isEmpty"> WHERE pv.name LIKE CONCAT("%", #{pageVo.plantName}, "%") </if>-->
+        GROUP BY pv.id
+        <if test="status != null">HAVING ss = #{status}</if>
+    </select>
+
+</mapper>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.pcms.project.mapper.DevicePointDayMapper">
+
+
+
+
+    <resultMap id="PsInfoVoResultMap" type="org.jeecg.modules.pcms.energy.vo.PsInfoVo">
+        <result property="psName" column="psName"/>
+        <result property="designCapacity" column="designCapacity"/>
+        <result property="deviceSn" column="deviceSn"/>
+        <result property="communicationDevSn" column="communicationDevSn"/>
+        <result property="deviceModelCode" column="deviceModelCode"/>
+        <result property="deviceStatus" column="deviceStatus"/>
+        <result property="psKey" column="psKey"/>
+    </resultMap>
+
+    <select id="getDeviceInfos" resultMap="PsInfoVoResultMap">
+        SELECT
+        de.device_id,
+        de.device_name AS psName,
+        de.total_capcity AS designCapacity,
+        dee.device_sn AS deviceSn,
+        dee.communication_dev_sn AS communicationDevSn,
+        dee.device_model_code AS deviceModelCode,
+        dee.dev_status AS deviceStatus,
+        dee.ps_key AS psKey
+        FROM
+        device de
+        INNER JOIN
+        device_equipment dee ON dee.ps_id = de.device_id
+        WHERE
+        dee.ps_key IN
+        <foreach item="psKey" index="index" collection="psKeys" open="(" separator="," close=")">
+            #{psKey}
+        </foreach>
+        AND de.source = 1
+    </select>
+
+
+    <select id="getWeek" resultType="java.math.BigDecimal">
+        SELECT
+        ROUND(COALESCE(SUM(total_value), 0), 2) AS total_p1_sum
+        FROM (
+        <trim suffixOverrides="UNION ALL">
+            <!-- 第一个查询：device_point_day -->
+            <if test="psKeyList != null and !psKeyList.isEmpty()">
+                SELECT CAST(p83022 AS DECIMAL(20, 6)) / 1000 AS total_value
+                FROM device_point_day
+                WHERE time_stamp = #{timeStamp}
+                AND ps_key IN
+                <foreach collection="psKeyList" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+                UNION ALL
+            </if>
+
+            <!-- 第二个查询：device_point_day_grw -->
+            <if test="deviceSns != null and !deviceSns.isEmpty()">
+                SELECT CAST(p83022 AS DECIMAL(20, 6)) AS total_value
+                FROM device_point_day_grw
+                WHERE time_stamp = #{time}
+                AND ps_key IN
+                <foreach collection="deviceSns" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+                UNION ALL
+            </if>
+        </trim>
+
+        <!-- 防御：如果上面两个都为空，至少返回一行 NULL -->
+        <if test="(psKeyList == null or psKeyList.isEmpty()) and (deviceSns == null or deviceSns.isEmpty())">
+            SELECT 0 AS total_value WHERE 1 = 0
+        </if>
+        ) combined_data
+    </select>
+</mapper>

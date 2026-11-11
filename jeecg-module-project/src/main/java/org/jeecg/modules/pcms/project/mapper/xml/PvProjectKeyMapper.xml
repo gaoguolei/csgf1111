@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.pcms.project.mapper.PvProjectKeyMapper">
+
+    <update id="updatePasswordKey">
+        update pv_project_key set password_key = #{keyStr}, update_time = NOW() where id = #{id}
+    </update>
+
+    <select id="getByProjectId" resultType="org.jeecg.modules.pcms.project.entity.PvProjectKey">
+        select * from pv_project_key where project_id = #{projectInfoId} and tenant_id = #{tenantId} and row_status = '1'
+    </select>
+
+    <select id="getByProjectIdNew" resultType="org.jeecg.modules.pcms.project.entity.PvProjectKey">
+        select * from pv_project_key where tenant_id = #{tenantId} and row_status = '1'
+    </select>
+
+    <select id="getByProjectIdNewNew" resultType="org.jeecg.modules.pcms.project.entity.PvProjectKey">
+        select * from pv_project_key where row_status = '1'
+    </select>
+
+</mapper>

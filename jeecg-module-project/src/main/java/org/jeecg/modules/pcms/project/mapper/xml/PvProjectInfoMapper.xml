@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.pcms.project.mapper.PvProjectInfoMapper">
+
+    <update id="updateProjectInfo">
+        update pv_project_info set
+        account_number = #{accountNumber},
+        area_address = #{areaAddress},
+        con_bank_card_holders = #{conBankCardHolders},
+        con_code = #{conCode},
+        constr_team = #{constrTeam},
+        create_by = #{createBy},
+        create_time = #{createTime},
+        customer_mobile = #{customerMobile},
+        customer_name = #{customerName},
+        electricity_card_no = #{electricityCardNo},
+        electricity_owner = #{electricityOwner},
+        full_address = #{fullAddress},
+        house_distance = #{houseDistance},
+        house_no = #{houseNo},
+        house_owner = #{houseOwner},
+        house_size = #{houseSize},
+        house_type = #{houseType},
+        house_type_group = #{houseTypeGroup},
+        id_number = #{idNumber},
+        inst_angle = #{instAngle},
+        inst_cmpt_arrange = #{instCmptArrange},
+        inst_cmpt_capacity = #{instCmptCapacity},
+        inst_cmpt_capacity_fact = #{instCmptCapacityFact},
+        inst_cmpt_number = #{instCmptNumber},
+        inst_cmpt_number_fact = #{instCmptNumberFact},
+        inst_latitude = #{instLatitude},
+        inst_location = #{instLocation},
+        inst_longitude = #{instLongitude},
+        is_upload = #{isUpload},
+        open_card_time = #{openCardTime},
+        project_code = #{projectCode},
+        project_status = #{projectStatus},
+        project_type = #{projectType},
+        rejection_type = #{rejectionType},
+        relation_info = #{relationInfo},
+        return_fee_debit_card_bank = #{returnFeeDebitCardBank},
+        return_fee_debit_card_no = #{returnFeeDebitCardNo},
+        return_fee_debit_card_owner = #{returnFeeDebitCardOwner},
+        salesperson_id = #{salespersonId},
+        sys_org_code = #{sysOrgCode},
+        tenant_id = #{tenantId},
+        total_capacity = #{totalCapacity},
+        update_by = #{updateBy},
+        update_time = #{updateTime},
+        work_time = #{workTime}
+        where id = #{id} and del_flag = 0;
+    </update>
+
+    <update id="updateBuildAfter">
+        update pv_project_info set build_after = #{buildAfter} where id = #{projectInfoId}
+    </update>
+
+    <update id="updateByIdNew">
+        update pv_project_info set customer_name = #{p.customerName} , id_number = #{p.idNumber}
+                    , customer_mobile = #{p.customerMobile} , con_bank_card_holders = #{p.conBankCardHolders}
+                    , house_owner = #{p.houseOwner} , electricity_owner = #{p.electricityOwner}
+                    , electricity_card_no = #{p.electricityCardNo} , return_fee_debit_card_no = #{p.returnFeeDebitCardNo}
+                    , return_fee_debit_card_owner = #{p.returnFeeDebitCardOwner} where id = #{p.id}
+    </update>
+
+    <update id="updateCustomerName">
+        update pv_project_info set customer_name = #{decrypt} where id = #{projectInfoId}
+    </update>
+
+    <select id="getLogicalDeletedById" parameterType="java.lang.Integer"
+            resultType="org.jeecg.modules.pcms.project.entity.PvProjectInfo">
+        select *
+        from pv_project_info
+        where id = #{id}
+    </select>
+    <select id="getExpirationList" parameterType="java.lang.Integer"  resultType="org.jeecg.modules.pcms.project.entity.PvProjectInfo">
+        select * from pv_project_info
+        where del_flag = 0
+        and project_status = 90
+        and DATEDIFF(now(),update_time) >= #{expirationDays}
+    </select>
+
+
+    <resultMap id="BaseResultMap1" type="org.jeecg.modules.pcms.project.entity.PvProjectInfo">
+        <result column="id" property="id"/>
+        <result column="project_status" property="projectStatus"/>
+        <result column="salesperson_id" property="salespersonId"/>
+        <result column="customer_name" property="customerName"/>
+        <result column="id_number" property="idNumber"/>
+        <result column="customer_mobile" property="customerMobile"/>
+        <result column="area_address" property="areaAddress"/>
+        <result column="full_address" property="fullAddress"/>
+        <result column="house_type" property="houseType"/>
+        <result column="house_size" property="houseSize"/>
+        <result column="house_distance" property="houseDistance"/>
+        <result column="inst_location" property="instLocation"/>
+        <result column="inst_longitude" property="instLongitude"/>
+        <result column="inst_latitude" property="instLatitude"/>
+        <result column="inst_cmpt_arrange" property="instCmptArrange"/>
+        <result column="inst_cmpt_number" property="instCmptNumber"/>
+        <result column="inst_cmpt_capacity" property="instCmptCapacity"/>
+        <result column="con_code" property="conCode"/>
+        <result column="con_bank_card_holders" property="conBankCardHolders"/>
+        <result column="constr_team" property="constrTeam"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="sys_org_code" property="sysOrgCode"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="project_type" property="projectType"/>
+        <result column="inst_cmpt_number_fact" property="instCmptNumberFact"/>
+        <result column="inst_cmpt_capacity_fact" property="instCmptCapacityFact"/>
+        <result column="account_number" property="accountNumber"/>
+    </resultMap>
+
+    <select id="getHomePageData" parameterType="org.jeecg.modules.pcms.project.entity.PvProjectInfo"
+            resultType="java.lang.Integer">
+        select count(*) from pv_project_info
+        <where>
+            <if test="bpmNodeId != null">
+                project_status >=#{bpmNodeId}
+            </if>
+            <if test="pvProjectInfo.addressId != null">
+                and area_address  LIKE CONCAT('%,',#{pvProjectInfo.addressId},',%')
+            </if>
+            <if test="pvProjectInfo.renterId != null and  pvProjectInfo.renterId != ''">
+                and  tenant_id = #{pvProjectInfo.renterId}
+            </if>
+            <if test="pvProjectInfo.projectType != null and  pvProjectInfo.projectType != ''">
+                and  project_type = #{pvProjectInfo.projectType}
+            </if>
+            and del_flag = 0
+        </where>
+    </select>
+
+
+    <select id="getHomePageDatatToday" parameterType="org.jeecg.modules.pcms.project.entity.PvProjectInfo"
+            resultType="java.lang.Integer">
+        select count(*) from pv_project_info
+        <where>
+            <if test="bpmNodeId != null">
+                project_status >=#{bpmNodeId}
+            </if>
+                and  create_time BETWEEN CONCAT(CURDATE(),' 00:00:00') and CONCAT(CURDATE(),' 23:59:59')
+            <if test="pvProjectInfo.addressId != null">
+                and area_address  LIKE CONCAT('%,',#{pvProjectInfo.addressId},',%')
+            </if>
+            <if test="pvProjectInfo.renterId != null and  pvProjectInfo.renterId != ''">
+                and  tenant_id = #{pvProjectInfo.renterId}
+            </if>
+            <if test="pvProjectInfo.projectType != null and  pvProjectInfo.projectType != ''">
+                and  project_type = #{pvProjectInfo.projectType}
+            </if>
+                and del_flag = 0
+        </where>
+
+    </select>
+
+
+    <select id="getHomePageDataLoad" parameterType="org.jeecg.modules.pcms.project.entity.PvProjectInfo"
+            resultType="java.math.BigDecimal">
+        select SUM(inst_cmpt_capacity) from pv_project_info
+        <where>
+            <if test="bpmNodeId != null">
+                project_status >=#{bpmNodeId}
+            </if>
+            <if test="pvProjectInfo.addressId != null">
+                and area_address  LIKE CONCAT('%,',#{pvProjectInfo.addressId},',%')
+            </if>
+            <if test="pvProjectInfo.renterId != null and  pvProjectInfo.renterId != ''">
+                and  tenant_id = #{pvProjectInfo.renterId}
+            </if>
+            <if test="pvProjectInfo.projectType != null and  pvProjectInfo.projectType != ''">
+                and  project_type = #{pvProjectInfo.projectType}
+            </if>
+                and del_flag = 0
+        </where>
+    </select>
+
+    <select id="getHomePageDataLoadFact" parameterType="org.jeecg.modules.pcms.project.entity.PvProjectInfo"
+            resultType="java.math.BigDecimal">
+        select SUM(inst_cmpt_capacity_fact) from pv_project_info
+        <where>
+            <if test="bpmNodeId != null">
+                project_status >=#{bpmNodeId}
+            </if>
+            <if test="pvProjectInfo.addressId != null">
+                and area_address  LIKE CONCAT('%,',#{pvProjectInfo.addressId},',%')
+            </if>
+            <if test="pvProjectInfo.renterId != null and  pvProjectInfo.renterId != ''">
+                and  tenant_id = #{pvProjectInfo.renterId}
+            </if>
+            <if test="pvProjectInfo.projectType != null and  pvProjectInfo.projectType != ''">
+                and  project_type = #{pvProjectInfo.projectType}
+            </if>
+            and del_flag = 0
+        </where>
+    </select>
+
+    <select id="getHomePageDataLoadToday" parameterType="org.jeecg.modules.pcms.project.entity.PvProjectInfo"
+            resultType="java.math.BigDecimal">
+        select SUM(inst_cmpt_capacity) from pv_project_info
+        <where>
+            <if test="bpmNodeId != null">
+                project_status >=#{bpmNodeId}
+            </if>
+                and  create_time BETWEEN CONCAT(CURDATE(),' 00:00:00') and CONCAT(CURDATE(),' 23:59:59')
+            <if test="pvProjectInfo.addressId != null">
+                and area_address  LIKE CONCAT('%,',#{pvProjectInfo.addressId},',%')
+            </if>
+            <if test="pvProjectInfo.renterId != null and  pvProjectInfo.renterId != ''">
+                and  tenant_id = #{pvProjectInfo.renterId}
+            </if>
+            <if test="pvProjectInfo.projectType != null and  pvProjectInfo.projectType != ''">
+                and  project_type = #{pvProjectInfo.projectType}
+            </if>
+            and del_flag = 0
+        </where>
+    </select>
+
+    <select id="getHomePageDataLoadTodayFact" parameterType="org.jeecg.modules.pcms.project.entity.PvProjectInfo"
+            resultType="java.math.BigDecimal">
+        select SUM(inst_cmpt_capacity_fact) from pv_project_info
+        <where>
+            <if test="bpmNodeId != null">
+                project_status >=#{bpmNodeId}
+            </if>
+            and  create_time BETWEEN CONCAT(CURDATE(),' 00:00:00') and CONCAT(CURDATE(),' 23:59:59')
+            <if test="pvProjectInfo.addressId != null">
+                and area_address  LIKE CONCAT('%,',#{pvProjectInfo.addressId},',%')
+            </if>
+            <if test="pvProjectInfo.renterId != null and  pvProjectInfo.renterId != ''">
+                and  tenant_id = #{pvProjectInfo.renterId}
+            </if>
+            <if test="pvProjectInfo.projectType != null and  pvProjectInfo.projectType != ''">
+                and  project_type = #{pvProjectInfo.projectType}
+            </if>
+            and del_flag = 0
+        </where>
+    </select>
+
+
+    <select id="getHomeDataLoad" parameterType="org.jeecg.modules.pcms.project.entity.PvProjectInfo"
+            resultType="java.math.BigDecimal">
+        select SUM(inst_cmpt_capacity) from pv_project_info
+        <where>
+            <if test="pvProjectInfo.bpmNodeId != null">
+                project_status >=#{bpmNodeId}
+            </if>
+            <if test="pvProjectInfo.renterId != null and  pvProjectInfo.renterId != ''">
+                and  tenant_id = #{pvProjectInfo.renterId}
+            </if>
+            <if test="pvProjectInfo.projectType != null and  pvProjectInfo.projectType != ''">
+                and  project_type = #{pvProjectInfo.projectType}
+            </if>
+            and del_flag = 0
+        </where>
+    </select>
+
+
+    <select id="getHomeDataCount" parameterType="org.jeecg.modules.pcms.project.entity.PvProjectInfo"
+            resultType="org.jeecg.modules.pcms.project.entity.PvProjectInfo">
+        select * from pv_project_info
+       <where>
+            <if test="pvProjectInfo.addressId != null">
+              and   area_address  LIKE CONCAT('%,',#{pvProjectInfo.addressId},',%')
+            </if>
+           <if test="pvProjectInfo.renterId != null and  pvProjectInfo.renterId != ''">
+               and  tenant_id  =#{pvProjectInfo.renterId}
+           </if>
+           <if test="pvProjectInfo.projectType != null and  pvProjectInfo.projectType != ''">
+               and  project_type = #{pvProjectInfo.projectType}
+           </if>
+           and del_flag = 0
+       </where>
+    </select>
+
+
+    <select id="getLedger" parameterType="org.jeecg.modules.pcms.project.entity.PvProjectInfo"
+            resultMap="BaseResultMap1">
+        select  DISTINCT(pi.id) as id1 ,pi.* from
+        pv_project_info pi left join pv_operate_log pl on pi.id=pl.project_id
+        <where>
+            <if test="pvProjectInfo.conCode != null">
+                and pi.project_code LIKE CONCAT('%',#{pvProjectInfo.conCode},'%')
+            </if>
+            <if test="pvProjectInfo.customerName != null">
+                and pi.customer_name LIKE CONCAT('%',#{pvProjectInfo.customerName},'%')
+            </if>
+            <if test="pvProjectInfo.createBy != null">
+                and   pi.create_by  LIKE CONCAT('%',#{pvProjectInfo.createBy},'%')
+            </if>
+            <if test="pvProjectInfo.constrTeam != null">
+                and   pi.constr_team = #{pvProjectInfo.constrTeam}
+            </if>
+            <if test="pvProjectInfo.beginDate != null ">
+                AND DATE_FORMAT(pi.create_time,'%Y-%m-%d %H:%i:%s') &gt; DATE_FORMAT(#{pvProjectInfo.beginDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="pvProjectInfo.endDate != null">
+                AND DATE_FORMAT(pi.create_time,'%Y-%m-%d %H:%i:%s') &lt; DATE_FORMAT(#{pvProjectInfo.endDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="pvProjectInfo.addressId != null">
+                and   pi.area_address  LIKE CONCAT('%,',#{pvProjectInfo.addressId},',%')
+            </if>
+            <if test="pvProjectInfo.projectType != null and pvProjectInfo.projectType!= ''">
+                and   pi.project_type = #{pvProjectInfo.projectType}
+            </if>
+            <if test="pvProjectInfo.statusIds != null and pvProjectInfo.statusIds.size() != 0 ">
+                and pi.project_status  IN
+                <foreach collection="pvProjectInfo.statusIds" item="item" open="(" separator="," close=")">
+                      #{item}
+                </foreach>
+            </if>
+            <if test="pvProjectInfo.renterId != null and  pvProjectInfo.renterId != ''">
+                and  pi.tenant_id = #{pvProjectInfo.renterId}
+            </if>
+
+            <if test="pvProjectInfo.isSeller != null and  pvProjectInfo.isSeller != ''">
+                and  pl.oper_name =#{pvProjectInfo.operator}
+            </if>
+            <if test="pvProjectInfo.userIds != null and pvProjectInfo.userIds.size() != 0 ">
+                and pi.create_by IN
+                <foreach collection="pvProjectInfo.userIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            and pi.del_flag = 0
+        </where>
+        order by pi.update_time DESC
+    </select>
+
+    <select id="getLedgerNoSeller" parameterType="org.jeecg.modules.pcms.project.entity.PvProjectInfo"
+            resultMap="BaseResultMap1">
+        select  DISTINCT(pi.id) as id1 ,pi.* from
+        pv_project_info pi
+        <where>
+            <if test="pvProjectInfo.conCode != null">
+                and pi.project_code LIKE CONCAT('%',#{pvProjectInfo.conCode},'%')
+            </if>
+            <if test="pvProjectInfo.customerName != null">
+                and pi.customer_name LIKE CONCAT('%',#{pvProjectInfo.customerName},'%')
+            </if>
+            <if test="pvProjectInfo.createBy != null">
+                and   pi.create_by  LIKE CONCAT('%',#{pvProjectInfo.createBy},'%')
+            </if>
+            <if test="pvProjectInfo.constrTeam != null">
+                and   pi.constr_team = #{pvProjectInfo.constrTeam}
+            </if>
+            <if test="pvProjectInfo.beginDate != null ">
+                AND DATE_FORMAT(pi.create_time,'%Y-%m-%d %H:%i:%s') &gt; DATE_FORMAT(#{pvProjectInfo.beginDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="pvProjectInfo.endDate != null">
+                AND DATE_FORMAT(pi.create_time,'%Y-%m-%d %H:%i:%s') &lt; DATE_FORMAT(#{pvProjectInfo.endDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="pvProjectInfo.addressId != null">
+                and   pi.area_address  LIKE CONCAT('%,',#{pvProjectInfo.addressId},',%')
+            </if>
+            <if test="pvProjectInfo.projectType != null and pvProjectInfo.projectType!= ''">
+                and   pi.project_type = #{pvProjectInfo.projectType}
+            </if>
+            <if test="pvProjectInfo.statusIds != null and pvProjectInfo.statusIds.size() != 0 ">
+                and pi.project_status  IN
+                <foreach collection="pvProjectInfo.statusIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="pvProjectInfo.userIds != null and pvProjectInfo.userIds.size() != 0 ">
+                and pi.create_by IN
+                <foreach collection="pvProjectInfo.userIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+
+
+            <if test="pvProjectInfo.renterId != null and  pvProjectInfo.renterId != ''">
+                and  pi.tenant_id = #{pvProjectInfo.renterId}
+            </if>
+            and pi.del_flag = 0
+        </where>
+        order by pi.update_time DESC
+    </select>
+
+
+
+    <select id="getRecycle" parameterType="org.jeecg.modules.pcms.project.entity.PvProjectInfo"
+            resultMap="BaseResultMap1">
+        select  DISTINCT(pi.id) as id1 ,pi.* from
+        pv_project_info pi left join pv_operate_log pl on pi.id=pl.project_id
+        <where>
+            <if test="pvProjectInfo.conCode != null">
+                and pi.project_code LIKE CONCAT('%',#{pvProjectInfo.conCode},'%')
+            </if>
+            <if test="pvProjectInfo.customerName != null">
+                and pi.customer_name LIKE CONCAT('%',#{pvProjectInfo.customerName},'%')
+            </if>
+            <if test="pvProjectInfo.createBy != null">
+                and   pi.create_by  LIKE CONCAT('%',#{pvProjectInfo.createBy},'%')
+            </if>
+            <if test="pvProjectInfo.constrTeam != null">
+                and   pi.constr_team = #{pvProjectInfo.constrTeam}
+            </if>
+            <if test="pvProjectInfo.beginDate != null ">
+                AND DATE_FORMAT(pi.create_time,'%Y-%m-%d %H:%i:%s') &gt; DATE_FORMAT(#{pvProjectInfo.beginDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="pvProjectInfo.endDate != null">
+                AND DATE_FORMAT(pi.create_time,'%Y-%m-%d %H:%i:%s') &lt; DATE_FORMAT(#{pvProjectInfo.endDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="pvProjectInfo.addressId != null">
+                and   pi.area_address  LIKE CONCAT('%,',#{pvProjectInfo.addressId},',%')
+            </if>
+            <if test="pvProjectInfo.projectType != null and pvProjectInfo.projectType!= ''">
+                and   pi.project_type = #{pvProjectInfo.projectType}
+            </if>
+            <if test="pvProjectInfo.statusIds != null and pvProjectInfo.statusIds.size() != 0 ">
+                and pi.project_status  IN
+                <foreach collection="pvProjectInfo.statusIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="pvProjectInfo.renterId != null and  pvProjectInfo.renterId != ''">
+                and  pi.tenant_id = #{pvProjectInfo.renterId}
+            </if>
+            <if test="pvProjectInfo.isSeller != null and  pvProjectInfo.isSeller != ''">
+                and  pl.oper_name =#{pvProjectInfo.operator}
+            </if>
+            <if test="pvProjectInfo.userIds != null and pvProjectInfo.userIds.size() != 0 ">
+                and pi.create_by IN
+                <foreach collection="pvProjectInfo.userIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            and pi.del_flag != 0
+        </where>
+        order by pi.update_time DESC
+    </select>
+
+    <select id="getRecycleNoSeller" parameterType="org.jeecg.modules.pcms.project.entity.PvProjectInfo"
+            resultMap="BaseResultMap1">
+        select  DISTINCT(pi.id) as id1 ,pi.* from
+        pv_project_info pi
+        <where>
+            <if test="pvProjectInfo.conCode != null">
+                and pi.project_code LIKE CONCAT('%',#{pvProjectInfo.conCode},'%')
+            </if>
+            <if test="pvProjectInfo.customerName != null">
+                and pi.customer_name LIKE CONCAT('%',#{pvProjectInfo.customerName},'%')
+            </if>
+            <if test="pvProjectInfo.createBy != null">
+                and   pi.create_by  LIKE CONCAT('%',#{pvProjectInfo.createBy},'%')
+            </if>
+            <if test="pvProjectInfo.constrTeam != null">
+                and   pi.constr_team = #{pvProjectInfo.constrTeam}
+            </if>
+            <if test="pvProjectInfo.beginDate != null ">
+                AND DATE_FORMAT(pi.create_time,'%Y-%m-%d %H:%i:%s') &gt; DATE_FORMAT(#{pvProjectInfo.beginDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="pvProjectInfo.endDate != null">
+                AND DATE_FORMAT(pi.create_time,'%Y-%m-%d %H:%i:%s') &lt; DATE_FORMAT(#{pvProjectInfo.endDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="pvProjectInfo.addressId != null">
+                and   pi.area_address  LIKE CONCAT('%,',#{pvProjectInfo.addressId},',%')
+            </if>
+            <if test="pvProjectInfo.projectType != null and pvProjectInfo.projectType!= ''">
+                and   pi.project_type = #{pvProjectInfo.projectType}
+            </if>
+            <if test="pvProjectInfo.statusIds != null and pvProjectInfo.statusIds.size() != 0 ">
+                and pi.project_status  IN
+                <foreach collection="pvProjectInfo.statusIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="pvProjectInfo.userIds != null and pvProjectInfo.userIds.size() != 0 ">
+                and pi.create_by IN
+                <foreach collection="pvProjectInfo.userIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="pvProjectInfo.renterId != null and  pvProjectInfo.renterId != ''">
+                and  pi.tenant_id = #{pvProjectInfo.renterId}
+            </if>
+            and pi.del_flag != 0
+        </where>
+        order by pi.update_time DESC
+    </select>
+
+    <select id="getLoad" parameterType="org.jeecg.modules.pcms.project.entity.PvProjectInfo"
+            resultType="org.jeecg.modules.pcms.project.vo.ProjectDataVo">
+        select count(*) as house,sum(inst_cmpt_capacity) as volume  from pv_project_info
+        <where>
+            <if test="bpmNodeId != null">
+                project_status >=#{bpmNodeId}
+            </if>
+            <if test="pvProjectInfo.addressId != null">
+                and area_address  LIKE CONCAT('%,',#{pvProjectInfo.addressId},',%')
+            </if>
+            <if test="pvProjectInfo.renterId != null and  pvProjectInfo.renterId != ''">
+                and  tenant_id = #{pvProjectInfo.renterId}
+            </if>
+            <if test="pvProjectInfo.projectType != null and  pvProjectInfo.projectType != ''">
+                and  project_type = #{pvProjectInfo.projectType}
+            </if>
+            and del_flag = 0
+        </where>
+    </select>
+
+    <select id="getLoadFact" parameterType="org.jeecg.modules.pcms.project.entity.PvProjectInfo"
+            resultType="org.jeecg.modules.pcms.project.vo.ProjectDataVo">
+        select count(*) as house,sum(inst_cmpt_capacity_fact) as volume  from pv_project_info
+        <where>
+            <if test="bpmNodeId != null">
+                project_status >=#{bpmNodeId}
+            </if>
+            <if test="pvProjectInfo.addressId != null">
+                and area_address  LIKE CONCAT('%,',#{pvProjectInfo.addressId},',%')
+            </if>
+            <if test="pvProjectInfo.renterId != null and  pvProjectInfo.renterId != ''">
+                and  tenant_id = #{pvProjectInfo.renterId}
+            </if>
+            <if test="pvProjectInfo.projectType != null and  pvProjectInfo.projectType != ''">
+                and  project_type = #{pvProjectInfo.projectType}
+            </if>
+            and del_flag = 0
+        </where>
+    </select>
+
+
+    <select id="getWeek" parameterType="org.jeecg.modules.pcms.project.entity.PvProjectInfo"
+            resultType="org.jeecg.modules.pcms.project.vo.ProjectDataVo">
+        select count(*) as house, sum(inst_cmpt_capacity) as volume  from pv_project_info
+        <where>
+            <if test="bpmNodeId != null">
+                project_status >=#{bpmNodeId}
+            </if>
+            <if test="pvProjectInfo.addressId != null">
+                and area_address  LIKE CONCAT('%,',#{pvProjectInfo.addressId},',%')
+            </if>
+            <if test="pvProjectInfo.renterId != null and  pvProjectInfo.renterId != ''">
+                and  tenant_id = #{pvProjectInfo.renterId}
+            </if>
+            <if test="pvProjectInfo.projectType != null and  pvProjectInfo.projectType != ''">
+                and  project_type = #{pvProjectInfo.projectType}
+            </if>
+            <if test="pvProjectInfo.beginDate != null ">
+                AND DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') &gt; DATE_FORMAT(#{pvProjectInfo.beginDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="pvProjectInfo.endDate != null">
+                AND DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') &lt; DATE_FORMAT(#{pvProjectInfo.endDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="pvProjectInfo.beginDate == null and pvProjectInfo.endDate == null">
+                AND  YEARWEEK(create_time, 1) = YEARWEEK(CURDATE(), 1)
+            </if>
+            and del_flag = 0
+        </where>
+    </select>
+
+
+    <select id="getWeekFact" parameterType="org.jeecg.modules.pcms.project.entity.PvProjectInfo"
+            resultType="org.jeecg.modules.pcms.project.vo.ProjectDataVo">
+        select count(*) as house, sum(inst_cmpt_capacity_fact) as volume  from pv_project_info
+        <where>
+            <if test="bpmNodeId != null">
+                project_status >=#{bpmNodeId}
+            </if>
+            <if test="pvProjectInfo.addressId != null">
+                and area_address  LIKE CONCAT('%,',#{pvProjectInfo.addressId},',%')
+            </if>
+            <if test="pvProjectInfo.renterId != null and  pvProjectInfo.renterId != ''">
+                and  tenant_id = #{pvProjectInfo.renterId}
+            </if>
+            <if test="pvProjectInfo.projectType != null and  pvProjectInfo.projectType != ''">
+                and  project_type = #{pvProjectInfo.projectType}
+            </if>
+            <if test="pvProjectInfo.beginDate != null ">
+                AND DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') &gt; DATE_FORMAT(#{pvProjectInfo.beginDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="pvProjectInfo.endDate != null">
+                AND DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') &lt; DATE_FORMAT(#{pvProjectInfo.endDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="pvProjectInfo.beginDate == null and pvProjectInfo.endDate == null">
+                AND  YEARWEEK(create_time, 1) = YEARWEEK(CURDATE(), 1)
+            </if>
+            and del_flag = 0
+        </where>
+    </select>
+
+    <select id="selectProjectInfoList" resultType="org.jeecg.modules.pcms.project.entity.PvProjectInfo">
+        select * from pv_project_info where del_flag = 0 or del_flag = 1 or del_flag = 8
+    </select>
+
+</mapper>

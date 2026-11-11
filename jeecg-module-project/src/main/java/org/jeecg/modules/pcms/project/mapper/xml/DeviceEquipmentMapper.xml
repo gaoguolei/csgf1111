@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.pcms.project.mapper.DeviceEquipmentMapper">
+
+
+
+
+    <resultMap id="PsInfoVoResultMap" type="org.jeecg.modules.pcms.energy.vo.PsInfoVo">
+        <result property="psName" column="psName"/>
+        <result property="designCapacity" column="designCapacity"/>
+        <result property="deviceSn" column="deviceSn"/>
+        <result property="communicationDevSn" column="communicationDevSn"/>
+        <result property="deviceModelCode" column="deviceModelCode"/>
+        <result property="deviceStatus" column="deviceStatus"/>
+        <result property="psKey" column="psKey"/>
+    </resultMap>
+
+    <select id="getDeviceInfos" resultMap="PsInfoVoResultMap">
+        SELECT
+        de.device_id,
+        de.device_name AS psName,
+        de.total_capcity AS designCapacity,
+        dee.device_sn AS deviceSn,
+        dee.communication_dev_sn AS communicationDevSn,
+        dee.device_model_code AS deviceModelCode,
+        dee.dev_status AS deviceStatus,
+        dee.ps_key AS psKey
+        FROM
+        device de
+        INNER JOIN
+        device_equipment dee ON dee.ps_id = de.device_id
+        WHERE
+        dee.ps_key IN
+        <foreach item="psKey" index="index" collection="psKeys" open="(" separator="," close=")">
+            #{psKey}
+        </foreach>
+        AND de.source = 1
+    </select>
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.pcms.project.mapper.DevicePointMonthMapper">
+
+
+
+
+    <select id="getMonth" resultType="java.math.BigDecimal">
+        SELECT
+        ROUND(
+        COALESCE(
+        (
+        <if test="deviceSns != null and !deviceSns.isEmpty() and deviceSns.size() >0">
+            SELECT SUM(CAST(p83022 AS DECIMAL(15,6)))
+            FROM device_point_day_grw
+            WHERE DATE_FORMAT(time_stamp, '%Y%m') = #{timeStamp}
+            AND ps_key IN
+            <foreach collection="deviceSns" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="deviceSns == null or deviceSns.isEmpty()">
+            SELECT NULL
+        </if>
+        ), 0
+        ) +
+        COALESCE(
+        (
+        <if test="psKeyList != null and !psKeyList.isEmpty() and psKeyList.size() >0">
+            SELECT SUM(CAST(p83022 AS DECIMAL(15,6)) / 1000)
+            FROM device_point_month
+            WHERE time_stamp = #{timeStamp}
+            AND ps_key IN
+            <foreach collection="psKeyList" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="psKeyList == null or psKeyList.isEmpty()">
+            SELECT NULL
+        </if>
+        ), 0
+        ),
+        2
+        ) AS total_p1_sum
+    </select>
+</mapper>

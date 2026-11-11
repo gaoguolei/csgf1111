@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>jeecg-boot-parent</artifactId>
+        <groupId>org.jeecgframework.boot</groupId>
+        <version>3.4.4</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>jeecg-module-project</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jeecgframework.boot</groupId>
+            <artifactId>jeecg-boot-base-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.belerweb</groupId>
+            <artifactId>pinyin4j</artifactId>
+            <version>2.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.13</version>
+        </dependency>
+        <!-- 中文字体包。iText 自带的 Helvetica 不含中文字形，
+             渲染中文前必须用它注册 CJK 字体（STSong-Light），否则导出全是空白。
+             项目里原有的 PDF 代码只贴图片、不写字，所以一直没引这个包。 -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext-asian</artifactId>
+            <version>5.2.0</version>
+        </dependency>
+        <!-- PDF 拆图用：客户直接传 PDF，系统把每页渲染成图再逐张 OCR。
+             iText 只能生成/操作 PDF，做不了光栅化，所以另引 PDFBox。
+             走 2.0.x 这条线（Java8 兼容），与项目的 JDK 11 相容。 -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>2.0.30</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-http</artifactId>
+            <version>5.5.1</version>
+        </dependency>
+        <!-- 阿里云文字识别OCR 统一版，RecognizeAllText 靠 Type 参数区分单据类型。
+             项目里已有的 aliyun-java-sdk-* 是老一代SDK，两者可以共存互不影响。
+             3.1.2 的 tea-openapi(0.3.6) 序列化 ROA 流式 body 有缺陷，服务端实际收到空JSON，
+             表现为 400 签名错 / 416 尺寸错；3.1.3 起核心库升到 0.3.8 修复，勿降回。 -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>ocr_api20210707</artifactId>
+            <version>3.1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>easyexcel</artifactId>
+            <version>3.3.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+            <version>1.4.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jeecgframework.boot</groupId>
+            <artifactId>jeecg-system-biz</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>

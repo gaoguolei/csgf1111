@@ -1,0 +1,395 @@
+server:
+  port: 8080
+  tomcat:
+    max-swallow-size: -1
+  error:
+    include-exception: true
+    include-stacktrace: ALWAYS
+    include-message: ALWAYS
+  servlet:
+    context-path: /jeecg-boot
+  compression:
+    enabled: true
+    min-response-size: 1024
+    mime-types: application/javascript,application/json,application/xml,text/html,text/xml,text/plain,text/css,image/*
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: metrics,httptrace
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
+  mail:
+    host: smtp.163.com
+    username: ??
+    password: ??
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  ## quartz定时任务,采用数据库方式
+  quartz:
+    job-store-type: jdbc
+    initialize-schema: never
+    #定时任务启动开关，true-开  false-关
+    auto-startup: true
+    #延迟1秒启动定时任务
+    startup-delay: 1s
+    #启动时更新己存在的Job
+    overwrite-existing-jobs: true
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: MyScheduler
+            instanceId: AUTO
+          jobStore:
+            class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            tablePrefix: QRTZ_
+            isClustered: true
+            misfireThreshold: 30000
+            clusterCheckinInterval: 15000
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 30
+            threadPriority: 5
+            threadsInheritContextClassLoaderOfInitializingThread: true
+  #json 时间戳统一转换
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  jpa:
+    open-in-view: false
+  aop:
+    proxy-target-class: true
+  #配置freemarker
+  freemarker:
+    # 设置模板后缀名
+    suffix: .ftl
+    # 设置文档类型
+    content-type: text/html
+    # 设置页面编码格式
+    charset: UTF-8
+    # 设置页面缓存
+    cache: false
+    prefer-file-system-access: false
+    # 设置ftl文件路径
+    template-loader-path:
+      - classpath:/templates
+  # 设置静态文件路径，js,css等
+  mvc:
+    static-path-pattern: /**
+    #Spring Boot 2.6+后映射匹配的默认策略已从AntPathMatcher更改为PathPatternParser,需要手动指定为ant-path-matcher
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  resource:
+    static-locations: classpath:/static/,classpath:/public/
+  autoconfigure:
+    exclude: com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
+  datasource:
+    druid:
+      stat-view-servlet:
+        enabled: true
+        loginUsername: admin
+        loginPassword: 123456
+        allow:
+      web-stat-filter:
+        enabled: true
+    dynamic:
+      druid: # 全局druid参数，绝大部分值和默认保持一致。(现已支持的参数如下,不清楚含义不要乱设置)
+        # 连接池的配置信息
+        # 初始化大小，最小，最大
+        initial-size: 5
+        min-idle: 5
+        maxActive: 100
+        # 配置获取连接等待超时的时间
+        maxWait: 60000
+        # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+        timeBetweenEvictionRunsMillis: 60000
+        # 配置一个连接在池中最小生存的时间，单位是毫秒
+        minEvictableIdleTimeMillis: 300000
+        validationQuery: SELECT 1 FROM DUAL
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+        # 打开PSCache，并且指定每个连接上PSCache的大小
+        poolPreparedStatements: true
+        maxPoolPreparedStatementPerConnectionSize: 20
+        # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+        filters: stat,wall,slf4j
+        # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+        connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
+      datasource:
+        master:
+          url: jdbc:mysql://${db_host_db}?characterEncoding=UTF-8&useUnicode=true&useSSL=false&tinyInt1isBit=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+          username: ${db_user}
+          password: ${db_pass}
+          hikari:
+            maximum-pool-size: 20
+            minimum-idle: 5
+            connection-timeout: 30000      # 30秒（获取连接超时时间）
+            max-lifetime: 5400000          # 90分钟（小于MySQL的wait_timeout）
+            idle-timeout: 600000           # 10分钟空闲超时
+            connection-test-query: SELECT 1
+            validation-timeout: 5000
+            # 添加以下配置
+            leak-detection-threshold: 60000 # 连接泄漏检测（60秒）
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          # 多数据源配置
+          #multi-datasource1:
+          #url: jdbc:mysql://localhost:3306/jeecg-boot2?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+          #username: root
+          #password: root
+          #driver-class-name: com.mysql.cj.jdbc.Driver
+  #redis 配置
+  redis:
+    database: ${redis_no}
+    host: ${redis_host}
+    port: ${redis_port}
+    password: ${redis_pass}
+#mybatis plus 设置
+mybatis-plus:
+  mapper-locations: classpath*:org/jeecg/modules/**/xml/*Mapper.xml
+  global-config:
+    # 关闭MP3.0自带的banner
+    banner: false
+    db-config:
+      #主键类型  0:"数据库ID自增",1:"该类型为未设置主键类型", 2:"用户输入ID",3:"全局唯一ID (数字类型唯一ID)", 4:"全局唯一ID UUID",5:"字符串全局唯一ID (idWorker 的字符串表示)";
+      id-type: ASSIGN_ID
+      # 默认数据库表下划线命名
+      table-underline: true
+  configuration:
+    # 这个配置会将执行的sql打印出来，在开发或测试的时候可以用
+    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 返回类型为Map,显示null对应的字段
+    call-setters-on-nulls: true
+#jeecg专用配置
+minidao:
+  base-package: org.jeecg.modules.jmreport.*
+jeecg:
+  # 是否启用安全模式
+  safeMode: false
+  # 签名密钥串(前后端要一致，正式发布请自行修改)
+  signatureSecret: dd05f1c54d63749eda95f9fa6d49v442a
+  # 签名拦截接口
+  signUrls: /sys/dict/getDictItems/*,/sys/dict/loadDict/*,/sys/dict/loadDictOrderByValue/*,/sys/dict/loadDictItem/*,/sys/dict/loadTreeData,/sys/api/queryTableDictItemsByCode,/sys/api/queryFilterTableDictInfo,/sys/api/queryTableDictByKeys,/sys/api/translateDictFromTable,/sys/api/translateDictFromTableByKeys
+  # local、minio、alioss
+  uploadType: local
+  # 前端访问地址
+  domainUrl:
+#    pc: https://renergy.allthinker.com
+    pc: https://pvgf.allthinker.com
+    app: https://renergy-mobile.allthinker.com
+    allPath: https://pvgf.allthinker.com/jeecg-boot/sys/common/static/
+  path:
+    #文件上传根目录 设置
+    upload: /opt/upload
+    #webapp文件路径
+    webapp: /opt/webapp
+  # 上传图片分辨率
+  image:
+    # 只压缩大于500KB图片
+    compressionSize: 300
+    width: 1024
+    height: 1024
+    # 原图过期天数
+    expirationDays: 3
+  # 缩略图分辨率
+  thumbImage:
+    width: 1920
+    height: 1080
+  shiro:
+    excludeUrls: /test/jeecgDemo/demo3,/test/jeecgDemo/redisDemo/**,/category/**,/visual/**,/map/**,/jmreport/bigscreen2/**
+  #阿里云oss存储和大鱼短信秘钥配置
+  oss:
+    accessKey: ??
+    secretKey: ??
+    endpoint: oss-cn-beijing.aliyuncs.com
+    bucketName: jeecgdev
+    staticDomain: https://static.jeecg.com
+  # ElasticSearch 设置
+  elasticsearch:
+    cluster-name: jeecg-ES
+    cluster-nodes: 127.0.0.1:9200
+    check-enabled: false
+  # 在线预览文件服务器地址配置
+  file-view-domain: http://127.0.0.1:8012 # http://fileview.jeecg.com
+  # minio文件上传
+  minio:
+    minio_url: http://minio.jeecg.com
+    minio_name: ??
+    minio_pass: ??
+    bucketName: ?? # otatest
+  #大屏报表参数设置
+  jmreport:
+    mode: prod
+    #数据字典是否进行saas数据隔离，自己看自己的字典
+    saas: false
+    #是否需要校验token
+    is_verify_token: true
+    #必须校验方法
+    verify_methods: remove,delete,save,add,update
+  #xxl-job配置
+  xxljob:
+    enabled: false
+    adminAddresses: http://127.0.0.1:9080/xxl-job-admin
+    appname: ${spring.application.name}
+    accessToken: ''
+    address: 127.0.0.1:30007
+    ip: 127.0.0.1
+    port: 30007
+    logPath: logs/jeecg/job/jobhandler/
+    logRetentionDays: 30
+  #分布式锁配置
+  redisson:
+    address: ${redis_host}:${redis_port}
+    password: ${redis_pass}
+    type: STANDALONE
+    enabled: true
+#cas单点登录
+cas:
+  prefixUrl: http://cas.example.org:8443/cas
+#Mybatis输出sql日志
+logging:
+  level:
+    org.jeecg.modules.system.mapper: info
+#swagger
+knife4j:
+  #开启增强配置
+  enable: true
+  #开启生产环境屏蔽
+  production: false
+  basic:
+    enable: true
+    username: jeecg
+    password: jeecg1314
+#第三方登录
+justauth:
+  enabled: true
+  type:
+    GITHUB:
+      client-id: ??
+      client-secret: ??
+      redirect-uri: http://sso.test.com:8080/jeecg-boot/sys/thirdLogin/github/callback
+    WECHAT_ENTERPRISE:
+      client-id: ??
+      client-secret: ??
+      redirect-uri: http://sso.test.com:8080/jeecg-boot/sys/thirdLogin/wechat_enterprise/callback
+      agent-id: ??
+    DINGTALK:
+      client-id: ??
+      client-secret: ??
+      redirect-uri: http://sso.test.com:8080/jeecg-boot/sys/thirdLogin/dingtalk/callback
+    WECHAT_OPEN:
+      client-id: ??
+      client-secret: ??
+      redirect-uri: http://sso.test.com:8080/jeecg-boot/sys/thirdLogin/wechat_open/callback
+  cache:
+    type: default
+    prefix: 'demo::'
+    timeout: 1h
+#第三方APP对接
+third-app:
+  enabled: false
+  type:
+    #企业微信
+    WECHAT_ENTERPRISE:
+      enabled: false
+      #CORP_ID
+      client-id: ??
+      #SECRET
+      client-secret: ??
+      #自建应用id
+      agent-id: ??
+      #自建应用秘钥（新版企微需要配置）
+      # agent-app-secret: ??
+    #钉钉
+    DINGTALK:
+      enabled: false
+      # appKey
+      client-id: ??
+      # appSecret
+      client-secret: ??
+      agent-id: ??
+#第三方电站接口  http://test.growatt.com    https://openapi-cn.growatt.com
+# 阳光云
+solar:
+  username: 国机中设新能源开发有限责任公司
+  password: Zsgm_2023
+  appkey: 966007956E96074B7E757FD89E6BBEDC
+  appsecret: ty6eumyuyapb41nf3304zaqb3vf0r3em
+  #登录接口：
+  login: https://gateway.isolarcloud.com/openapi/login
+  #电站列表接口
+  stationList: https://gateway.isolarcloud.com/openapi/getPowerStationList
+  #批量查询电站的基本信息
+  stationDetailList: https://gateway.isolarcloud.com/openapi/getBatchPsDetail
+  #根据电站id获取电站下所有设备
+  stationEquipments: https://gateway.isolarcloud.com/openapi/getDeviceListByUser
+  #获取设备故障数据
+  stationFault: https://gateway.isolarcloud.com/openapi/getFaultAlarmInfo
+  #查询同类型设备的实时测点数据
+  stationFaultEquipmentsPoint: https://gateway.isolarcloud.com/openapi/getDeviceRealTimeData
+  #查询同类型设备的历史测点分钟级数据
+  stationEquipmentsMinutePoint: https://gateway.isolarcloud.com/openapi/getDevicePointMinuteDataList
+  #查询同类型设备的历史测点日月年数据
+  stationEquipmentsMinuteDMYPoint: https://gateway.isolarcloud.com/openapi/getDevicePointsDayMonthYearDataList
+
+# 古瑞瓦特
+growatt:
+  #测试环境token(区分测试与生产环境；注意切换)  测试：6eb6f069523055a339d71e5b1f6c88cc  生产：619vecr60t557370rx1d3atm474b7l9y
+  token: 619vecr60t557370rx1d3atm474b7l9y
+  #电站列表接口 测试：http://test.growatt.com/v1/plant/list 生产：https://openapi-cn.growatt.com/v1/plant/list
+  stationList: https://openapi-cn.growatt.com/v1/plant/list
+  #电站详情接口 测试：http://test.growatt.com/v1/plant/details  生产：https://openapi-cn.growatt.com/v1/plant/details
+  stationDetails: https://openapi-cn.growatt.com/v1/plant/details
+  #电站橄榄数据接口： 测试：http://test.growatt.com/v1/plant/data  生产 https://openapi-cn.growatt.com/v1/plant/data
+  stationData: https://openapi-cn.growatt.com/v1/plant/data
+  #历史发电量 测试 ：http://test.growatt.com/v1/plant/energy   生产：https://openapi-cn.growatt.com/v1/plant/energy
+  historyEnergy: https://openapi-cn.growatt.com/v1/plant/energy
+  #某电站一天的功率 测试 ： http://test.growatt.com/v1/plant/power   生产： https://openapi-cn.growatt.com/v1/plant/power
+  dayPower: https://openapi-cn.growatt.com/v1/plant/power
+  #逆变器列表  测试：http://test.growatt.com/v1/device/list   生产 ：https://openapi-cn.growatt.com/v1/device/list
+  deviceList: https://openapi-cn.growatt.com/v1/device/list
+  #逆变器最新数据 测试： http://test.growatt.com/v1/device/inverter/last_new_data  生产 ：https://openapi-cn.growatt.com/v1/device/inverter/last_new_data
+  inverterNew: https://openapi-cn.growatt.com/v1/device/inverter/last_new_data
+  #逆变器报警数据 测试 ：http://test.growatt.com/v1/device/inverter/alarm   生产 ： https://openapi-cn.growatt.com/v1/device/inverter/alarm
+  inverterAlarm: https://openapi-cn.growatt.com/v1/device/inverter/alarm
+  #逆变器基本信息  测试： http://test.growatt.com/v1/device/inverter/inv_data_info   生产： https://openapi-cn.growatt.com/v1/device/inverter/inv_data_info
+  inverterInfo: https://openapi-cn.growatt.com/v1/device/inverter/inv_data_info
+  #逆变器历史数据  测试： http://test.growatt.com/v1/device/inverter/data   生产： https://openapi-cn.growatt.com/v1/device/inverter/data
+  inverterHistory: https://openapi-cn.growatt.com/v1/device/inverter/data
+  #电站的采集器  测试： http://test.growatt.com/v1/device/datalogger/list  生产： https://openapi-cn.growatt.com/v1/device/datalogger/list
+  dataLogger: https://openapi-cn.growatt.com/v1/device/datalogger/list
+  dayEnergy: https://openapi-cn.growatt.com/v1/device/inverter/day_energy
+sign:
+  modelPath: /src/main/resources/template/
+  outPath: /opt/upFiles/
+  #测试环境值
+  AppId: 7438953519
+  secret: a6dc47ad8a4e02cbbb98f080caaac748
+  orgId: aaaa51da5da742daba78f9689f3cf9ed
+  #上传文件(区分测试环境生产环境)
+  uploadFilePath: https://smlopenapi.esign.cn/v3/files/file-upload-url
+  #上传文件签名(区分测试环境生产环境)(由e签宝工具生成，生产环境需要重新生成)
+  uploadSign: S0DagrByzuO7ZrWTWtasfiIti4a13OR8g82fuuZ7fvQ=
+  #发起文件签署（区分测试环境生产环境）
+  signPath: https://smlopenapi.esign.cn/v3/sign-flow/create-by-file
+  #发起文件签署的签名值（区分测试环境生产环境）（由e签宝工具生成，生产环境需要重新生成）
+  signValue: vaZ1QbEENl9LHkJ3XNW6FaozA5O0zT1hG7LQCR/rcEQ=
+  #查询签署流程结果（签署流程状态查询）
+  signEnd: https://smlopenapi.esign.cn/v3/sign-flow/
+  #回调函数地址(测试环境和生产环境记得修改)
+  callbackPath: https://pvgf.allthinker.com/jeecg-boot/project/pvStationList/callback
+  signFileUpload: https://smlopenapi.esign.cn
+renergy:
+  envParam: 1

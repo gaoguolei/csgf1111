@@ -1,0 +1,8 @@
+${AnsiColor.BRIGHT_BLUE}
+光伏开发建设系统
+Photovoltaic construction management system
+
+${AnsiColor.BRIGHT_GREEN}
+Photovoltaic construction management system Version: 3.4.4
+Spring Boot Version: ${spring-boot.version}${spring-boot.formatted-version}
+${AnsiColor.BLACK}

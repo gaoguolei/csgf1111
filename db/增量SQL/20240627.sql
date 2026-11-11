@@ -1,0 +1,1 @@
+ALTER TABLE pv_project_type ADD COLUMN `lf_type` char(2) DEFAULT '1' COMMENT '廊坊查询参数';

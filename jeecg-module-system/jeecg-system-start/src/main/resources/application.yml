@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: jeecg-system
+  profiles:
+#    active: '@profile.name@'
+    active: dev
+
+# 阿里云OCR（租金回单识别）的 AccessKey 用环境变量注入，不写死进 git：
+#   Windows: set ALIYUN_OCR_AK=xxx 与 set ALIYUN_OCR_SK=xxx，或在 IDEA Run Configuration 的
+#   Environment variables 里填。环境变量没设时这两项解析为空串，调用识别接口会报
+#   "AccessKey 未配置"，但不影响其他功能启动。
+aliyun:
+  ocr:
+    access-key-id: ${ALIYUN_OCR_AK:YOUR_ACCESS_KEY_ID}
+    access-key-secret: ${ALIYUN_OCR_SK:YOUR_ACCESS_KEY_SECRET}
